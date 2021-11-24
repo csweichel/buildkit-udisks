@@ -1,0 +1,18 @@
+tasks:
+  - command: |
+      cd /tmp
+      curl -OL https://github.com/moby/buildkit/releases/download/v0.9.0/buildkit-v0.9.0.linux-amd64.tar.gz
+      tar xzfv buildkit-v0.9.0.linux-amd64.tar.gz
+      sudo mv bin/* /usr/bin
+      cd -
+      sudo buildkitd
+    name: buildkitd
+  - command: |
+      while [ ! -e /run/buildkit/buildkitd.sock ]; do sudo chown gitpod:gitpod -R /run &>/dev/null; sleep 1; done
+      sudo buildctl build --frontend=dockerfile.v0 --local context=. --local dockerfile=. --progress=plain
+    name: buildkit build
+    openMode: tab-after
+  - command: |
+      docker build .
+    openMode: split-right
+    name: docker build
